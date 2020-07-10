@@ -13,20 +13,16 @@ console.log("Server started.");
 
 
 
+var PLAYER_LIST = {}; 
+var SOCKET_LIST = {};
 
 onConnect = function(socket, name){
     var player = new Player(socket.id);
     
     player.name = name;
 
-    var rand = getRandomInt(0, COLORS.length);
-    player.color = COLORS[rand];
-
-    //Die Farbe des Spieler wird aus dem Array gelöscht, damit sie nicht doppelt vergeben wird
-    COLORS.splice(rand,1);
 
     player.initialize();
-    updateHighscore();
 
 
     PLAYER_LIST[player.id] = player;
@@ -57,9 +53,6 @@ onConnect = function(socket, name){
 }
 
 onDisconnect = function(socket){
-    //DIe Farbe darf neu vergeben werden
-    COLORS.push(PLAYER_LIST[socket.id].color);
-
     delete PLAYER_LIST[socket.id];
 }
 
@@ -76,48 +69,13 @@ io.sockets.on('connection', function(socket){
     SOCKET_LIST[socket.id] = socket;
 
     socket.on('signIn',function(data){
-        if(Object.size(PLAYER_LIST) < maxPlayer){
-
-
-
 
             onConnect(socket, data.name);
+            socket.emit('signInResponse',{success:true});  
 
-            if(Object.size(PLAYER_LIST) == 1) pq = 25
-            //if(Object.size(PLAYER_LIST) == 2) pq = 25
-            //if(Object.size(PLAYER_LIST) == 3) pq = 20
-            //if(Object.size(PLAYER_LIST) == 4) pq = 12.5
-            //if(Object.size(PLAYER_LIST) == 5) pq = 10
-
-
-            socket.emit('signInResponse',{success:true,pq:pq});  
-        } else {
-            socket.emit('signInResponse',{success:false});
-        }
-        
     });
 
-    socket.on('sendMsgToServer',function(data){
-        var playerName = PLAYER_LIST[socket.id].name;
-        var playerColor = PLAYER_LIST[socket.id].color;
-        var str = playerName + ': ' + data
 
-        var msg = {
-            str:str,
-            color:playerColor,
-        }
-
-        for(var i in SOCKET_LIST){
-            SOCKET_LIST[i].emit('addToChat',msg);
-        }
-    });
-   
-    socket.on('evalServer',function(data){
-        if(!DEBUG)
-            return;
-        var res = eval(data);
-        socket.emit('evalAnswer',res);     
-    });
     
 });
 
@@ -126,24 +84,14 @@ setInterval(function(){
     var data = [];
         for(var i in PLAYER_LIST){
             var player = PLAYER_LIST[i];
-            player.update();
             data.push({
-                snakex:player.snakex,
-                snakey:player.snakey,
-                xplus:player.xplus,
-                yplus:player.yplus,
-                score:player.score,
-                color:player.color,
-                name:player.name,
+                
             });    
         }
 
-    target.update();
 
     var pack = {
-        player:data,
-        goal:target,
-        highscore:highscoredata,
+        
     }
     
 
@@ -151,4 +99,4 @@ setInterval(function(){
         var socket = SOCKET_LIST[i];
         socket.emit('newPositions',pack);
     }
-}, GAME_SPEED);
+}, 60);
