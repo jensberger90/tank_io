@@ -6,6 +6,7 @@ app.get('/',function(req, res) {
     res.sendFile(__dirname + '/client/index.html');
 });
 app.use('/client',express.static(__dirname + '/client'));
+app.use('/favicon.ico',express.static(__dirname + '/favicon.ico'));
 
 
 serv.listen(2000);
@@ -24,12 +25,12 @@ function Player (id) {
     this.id = id;
     this.angle;
     this.speed = 5;
-    this.vx;
-    this.vy;
+    this.vx = 0;
+    this.vy = 0;
 
     this.update = function () {
-        this.x = this.x + 1;
-        this.y = this.y + 1;
+        this.x = this.x + this.vx * this.speed;
+        this.y = this.y + this.vy * this.speed;
     }
 
 }
@@ -61,10 +62,10 @@ onConnect = function(socket, name){
             player.vx = 1;    
         }
         else if(data.inputId === 'up' ){
-            player.vy = 1;       
+            player.vy = -1;       
         }
         else if(data.inputId === 'down'){
-            player.vy = -1;     
+            player.vy = 1;     
         }
             
     });
