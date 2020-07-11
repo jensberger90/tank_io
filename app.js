@@ -1,11 +1,11 @@
-var express = require('express');
-var app = express();
-var serv = require('http').Server(app);
+let express = require('express');
+let app = express();
+let serv = require('http').Server(app);
  
 app.get('/',function(req, res) {
-    res.sendFile(__dirname + '/client/index.html');
+    res.sendFile(__dirname + '/src/client/index.html');
 });
-app.use('/client',express.static(__dirname + '/client'));
+app.use('/src/client',express.static(__dirname + '/src/client'));
 app.use('/favicon.ico',express.static(__dirname + '/favicon.ico'));
 
 
@@ -14,10 +14,11 @@ console.log("Server started.");
 
 
 
-var PLAYER_LIST = {}; 
-var SOCKET_LIST = {};
+let PLAYER_LIST = {}; 
+let SOCKET_LIST = {};
 
 
+//Player Class
 function Player (id) {
     this.x = 0;
     this.y = 0;
@@ -35,7 +36,7 @@ function Player (id) {
 
 }
 
-
+//Bullet Class
 function Bullet (){
     this.x;
     this.y;
@@ -45,16 +46,18 @@ function Bullet (){
     }
 }
 
+
+//Client connects
 onConnect = function(socket, name){
     var player = new Player(socket.id);
     
     player.name = name;
 
-
-
-
     PLAYER_LIST[player.id] = player;
 
+    //Message Commands --------------------------
+
+    //Keypress Command
     socket.on('keyPress',function(data){
         if(data.inputId === 'left'){
             player.vx = -1;
@@ -70,40 +73,37 @@ onConnect = function(socket, name){
             
     });
 
+    //Disconnect Command
     socket.on('disconnect',function(){
         delete SOCKET_LIST[socket.id];
         onDisconnect(socket);
     });
 }
 
+//Client disconnects
 onDisconnect = function(socket){
     delete PLAYER_LIST[socket.id];
 }
 
 
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min;
-}
- 
+
+//Client Connection
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket){
     socket.id = Math.random();
     SOCKET_LIST[socket.id] = socket;
 
     socket.on('signIn',function(data){
-
             onConnect(socket, data.name);
             socket.emit('signInResponse',{success:true});  
 
     });
 
-
-    
 });
 
 
+
+//MAIN LOOP
 setInterval(function(){
     var data = [];
         for(var i in PLAYER_LIST){
@@ -127,3 +127,11 @@ setInterval(function(){
         socket.emit('newPositions',pack);
     }
 }, 60);
+
+
+//Other Stuff
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+}
