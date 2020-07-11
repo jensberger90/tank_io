@@ -6,8 +6,8 @@ app.get('/',function(req, res) {
     res.sendFile(__dirname + '/client/index.html');
 });
 app.use('/client',express.static(__dirname + '/client'));
-app.use('/favicon.ico',express.static(__dirname + '/favicon.ico'));
- 
+
+
 serv.listen(2000);
 console.log("Server started.");
 
@@ -16,32 +16,55 @@ console.log("Server started.");
 var PLAYER_LIST = {}; 
 var SOCKET_LIST = {};
 
+
+function Player (id) {
+    this.x = 0;
+    this.y = 0;
+    this.name;
+    this.id = id;
+    this.angle;
+    this.speed = 5;
+    this.vx;
+    this.vy;
+
+    this.update = function () {
+        this.x = this.x + 1;
+        this.y = this.y + 1;
+    }
+
+}
+
+
+function Bullet (){
+    this.x;
+    this.y;
+
+    this.update = function () {
+
+    }
+}
+
 onConnect = function(socket, name){
     var player = new Player(socket.id);
     
     player.name = name;
 
 
-    player.initialize();
 
 
     PLAYER_LIST[player.id] = player;
 
     socket.on('keyPress',function(data){
-        if(data.inputId === 'left' & player.xplus != 1){
-            player.xplus = -1;
-            player.yplus = 0;
-        }else if(data.inputId === 'right' & player.xplus != -1){
-            player.xplus = 1;
-            player.yplus = 0;        
+        if(data.inputId === 'left'){
+            player.vx = -1;
+        }else if(data.inputId === 'right' ){
+            player.vx = 1;    
         }
-        else if(data.inputId === 'up' & player.yplus != 1){
-            player.xplus = 0;
-            player.yplus = -1;        
+        else if(data.inputId === 'up' ){
+            player.vy = 1;       
         }
-        else if(data.inputId === 'down' & player.yplus != -1){
-            player.xplus = 0;
-            player.yplus = 1;        
+        else if(data.inputId === 'down'){
+            player.vy = -1;     
         }
             
     });
@@ -84,14 +107,17 @@ setInterval(function(){
     var data = [];
         for(var i in PLAYER_LIST){
             var player = PLAYER_LIST[i];
+            player.update();
             data.push({
-                
+                x:player.x,
+                y:player.y
             });    
         }
 
+    
 
     var pack = {
-        
+        player:data
     }
     
 
