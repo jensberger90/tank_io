@@ -59,18 +59,21 @@ onConnect = function(socket, name){
 
     //Keypress Command
     socket.on('keyPress',function(data){
-        if(data.inputId === 'left'){
+        if(data.hor === -1){
             player.vx = -1;
-        }else if(data.inputId === 'right' ){
+        }else if(data.hor === 1){
             player.vx = 1;    
-        }
-        else if(data.inputId === 'up' ){
+        }else{
+            player.vx = 0;    
+        } 
+        
+        if(data.ver === -1){
             player.vy = -1;       
-        }
-        else if(data.inputId === 'down'){
+        }else if(data.ver === 1){
             player.vy = 1;     
+        }else{
+            player.vy = 0;
         }
-            
     });
 
     //Disconnect Command
