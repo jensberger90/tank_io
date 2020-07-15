@@ -55,7 +55,7 @@ socket.on('newPositions',function(data){
     for(var i = 0 ; i < data.player.length; i++){
         ctx.fillStyle="red";
         ctx.fillRect(data.player[i].x,data.player[i].y,10,10);
-        console.log(data)
+        //console.log(data)
     }
 
 });
@@ -63,13 +63,15 @@ socket.on('newPositions',function(data){
 
 
 //KEY INPUT
-document.onkeypress = function(event){
+document.onkeydown = function(event){
     if(event.keyCode === 68 || event.keyCode === 39)    //d
-        socket.emit('keyPress',{hor:1,ver:null});
+        socket.emit('keyPress',{direction:"right"});
     else if(event.keyCode === 83 || event.keyCode === 40)   //s
-        socket.emit('keyPress',{hor:null,ver:1});
+        socket.emit('keyPress',{direction:"down"});
     else if(event.keyCode === 65 || event.keyCode === 37) //a
-        socket.emit('keyPress',{hor:-1,ver:null});
+        socket.emit('keyPress',{direction:"left"});
     else if(event.keyCode === 87 || event.keyCode === 38) // w
-        socket.emit('keyPress',{hor:null,ver:-1});
+        socket.emit('keyPress',{direction:"up"});
+
+    //console.log(event);
 }

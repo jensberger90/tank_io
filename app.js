@@ -6,12 +6,11 @@ app.get('/',function(req, res) {
     res.sendFile(__dirname + '/src/client/index.html');
 });
 app.use('/src/client',express.static(__dirname + '/src/client'));
-app.use('/favicon.ico',express.static(__dirname + '/favicon.ico'));
+
 
 
 serv.listen(2000);
 console.log("Server started.");
-
 
 
 let PLAYER_LIST = {}; 
@@ -30,8 +29,14 @@ function Player (id) {
     this.vy = 0;
 
     this.update = function () {
+
         this.x = this.x + this.vx * this.speed;
         this.y = this.y + this.vy * this.speed;
+
+        this.vx = 0;
+        this.vy = 0;
+
+        console.log(this.vx)
     }
 
 }
@@ -59,21 +64,24 @@ onConnect = function(socket, name){
 
     //Keypress Command
     socket.on('keyPress',function(data){
-        if(data.hor === -1){
-            player.vx = -1;
-        }else if(data.hor === 1){
-            player.vx = 1;    
-        }else{
-            player.vx = 0;    
-        } 
-        
-        if(data.ver === -1){
-            player.vy = -1;       
-        }else if(data.ver === 1){
-            player.vy = 1;     
-        }else{
-            player.vy = 0;
+
+
+        switch(data.direction) {
+            case "right":
+                player.vx = 1;
+                break;
+            case "down":
+                player.vy = 1;
+                break;
+            case "left":
+                player.vx = -1;
+                break;
+            case "up":
+                player.vy = -1;
+                break;
         }
+
+        
     });
 
     //Disconnect Command
